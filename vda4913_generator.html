@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDA 4913 ASN JSON Oluşturucu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        .highlight-group {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .highlight-group h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #4facfe;
+        }
+        
+        .result-container h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .copy-btn {
+            background: #00cec9;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+        
+        .copy-btn:hover {
+            background: #00a085;
+            transform: translateY(-1px);
+        }
+
+        .save-btn {
+            background: #6c5ce7;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .save-btn:hover {
+            background: #5a4fcf;
+            transform: translateY(-1px);
+        }
+        
+        .json-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .summary h4 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .dimension-group {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+            transition: all 0.3s ease;
+        }
+
+        .dimension-group:hover {
+            border-color: #4facfe;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.1);
+        }
+
+        .segment-group {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 2px solid #fab1a0;
+            transition: all 0.3s ease;
+        }
+
+        .segment-group:hover {
+            border-color: #e17055;
+            box-shadow: 0 6px 20px rgba(225, 112, 85, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .segment-group h3 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .highlight-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dimension-group {
+                margin-bottom: 20px;
+            }
+
+            .dimension-group > div:last-child {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 VDA 4913 ASN JSON Oluşturucu</h1>
+            <p>Komple VDA 4913 Advanced Shipping Notice JSON'u oluşturun</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="packageForm">
+                <div class="highlight-group">
+                    <h3>🎯 Ana Parametreler</h3>
+                    <div class="highlight-grid">
+                        <div class="form-group">
+                            <label for="paletCount">Palet Sayısı:</label>
+                            <input type="number" id="paletCount" value="9" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="koliCount">Koli Sayısı (Palet başına):</label>
+                            <input type="number" id="koliCount" value="16" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="startNumber">Başlangıç Numarası:</label>
+                            <input type="text" id="startNumber" value="252610001" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 711 - Delivery Information -->
+                <div class="segment-group">
+                    <h3>📄 Teslimat Bilgileri (711)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="dataRecipientNumber">Data Recipient Number:</label>
+                            <input type="text" id="dataRecipientNumber" value="ALICI NUMARASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dataSenderNumber">Data Sender Number:</label>
+                            <input type="text" id="dataSenderNumber" value="GONDEREN NUMARASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transmissionNumberOld">Transmission Number Old:</label>
+                            <input type="text" id="transmissionNumberOld" value="00085" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transmissionNumberNew">Transmission Number New:</label>
+                            <input type="text" id="transmissionNumberNew" value="00086" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transmissionDate">Transmission Date (YYMMDD):</label>
+                            <input type="text" id="transmissionDate" value="250904" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 712 - Transport Details -->
+                <div class="segment-group">
+                    <h3>🚛 Taşıma Detayları (712)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="deliveryRelationNumber">Delivery Relation Number:</label>
+                            <input type="text" id="deliveryRelationNumber" value="25261" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="carrier">Carrier:</label>
+                            <input type="text" id="carrier" value="TASIYICI ADI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="carrierHandoverDate">Carrier Handover Date (YYMMDD):</label>
+                            <input type="text" id="carrierHandoverDate" value="250916" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="carrierHandoverTime">Carrier Handover Time (HHMM):</label>
+                            <input type="text" id="carrierHandoverTime" value="1350" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryWeightGross">Delivery Weight Gross (kg):</label>
+                            <input type="text" id="deliveryWeightGross" value="0001100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transportTypeKeyCoded">Transport Type Key Coded:</label>
+                            <input type="text" id="transportTypeKeyCoded" value="01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transportTypeNumber">Transport Type Number:</label>
+                            <input type="text" id="transportTypeNumber" value="010101" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 713 - Delivery Note Details -->
+                <div class="segment-group">
+                    <h3>📋 İrsaliye Detayları (713)</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                            <label for="deliveryNoteNumber">Delivery Note Number:</label>
+                            <input type="text" id="deliveryNoteNumber" value="IRSALIYE NUMARASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dispatchDate">Dispatch Date (YYMMDD):</label>
+                            <input type="text" id="dispatchDate" value="250916" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unloadingAreaDestinationPoint">Unloading Area Destination Point:</label>
+                            <input type="text" id="unloadingAreaDestinationPoint" value="YUKLEME NOKTASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="typeOfDispatch">Type Of Dispatch:</label>
+                            <input type="text" id="typeOfDispatch" value="01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderNumber">Order Number:</label>
+                            <input type="text" id="orderNumber" value="SIPARIS NUMARASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="factoryCustomer">Factory Customer:</label>
+                            <input type="text" id="factoryCustomer" value="FABRIKA NUMARASI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="supplierNumber">Supplier Number:</label>
+                            <input type="text" id="supplierNumber" value="TEDARIKCI NUMARASI" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 714 - Position Details -->
+                <div class="segment-group">
+                    <h3>🏷️ Pozisyon Detayları (714)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="articleNumberCustomer">Article Number Customer:</label>
+                            <input type="text" id="articleNumberCustomer" value="MUSTERI URUN KODU" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="articleNumberSupplier">Article Number Supplier:</label>
+                            <input type="text" id="articleNumberSupplier" value="MUSTERI URUN ADI" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="countryOfProduction">Country Of Production:</label>
+                            <input type="text" id="countryOfProduction" value="999" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantityOfDelivery1">Quantity Of Delivery:</label>
+                            <input type="number" id="quantityOfDelivery1" value="13440" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unitOfMeasure1">Unit Of Measure:</label>
+                            <input type="text" id="unitOfMeasure1" value="ST" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="positionOfDeliveryRequest">Position Of Delivery Request:</label>
+                            <input type="text" id="positionOfDeliveryRequest" value="001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loadNumber">Load Number:</label>
+                            <input type="text" id="loadNumber" value="02S" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="purposeKey">Purpose Key:</label>
+                            <input type="text" id="purposeKey" value="S" required>
+                    </div>
+                    <div class="form-group">
+                            <label for="preferenceStatus">Preference Status:</label>
+                            <input type="text" id="preferenceStatus" value="G" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 715 - Package Information -->
+                <div class="segment-group">
+                    <h3>📦 Paketleme Bilgileri (715)</h3>
+                    <div class="form-grid">
+                    <div class="form-group">
+                        <label for="packagingNumberCustomer">Packaging Number Customer:</label>
+                        <input type="text" id="packagingNumberCustomer" value="3008178605" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="packagingNumberSupplier">Packaging Number Supplier:</label>
+                        <input type="text" id="packagingNumberSupplier" value="883" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deliveryItemNote">Delivery Item Note:</label>
+                        <input type="text" id="deliveryItemNote" value="001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="storageRequestNumber">Storage Request Number:</label>
+                        <input type="text" id="storageRequestNumber" value="25261" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPerPackageM">Product Per Package (M - Palet):</label>
+                        <input type="number" id="productPerPackageM" value="1920" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPerPackageS">Product Per Package (S - Koli):</label>
+                        <input type="number" id="productPerPackageS" value="120" required>
+                    </div>
+                </div>
+
+                <!-- Boyut Alanları -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #333; margin-bottom: 20px; text-align: center;">📏 Paket Boyutları</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                        <div class="dimension-group">
+                            <h4 style="color: #6c5ce7; margin-bottom: 15px; text-align: center;">Koli Boyutları (S)</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label for="lengthS" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Length (mm):</label>
+                                    <input type="number" id="lengthS" value="1100" required min="1" max="9999">
+                                </div>
+                                <div>
+                                    <label for="widthS" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Width (mm):</label>
+                                    <input type="number" id="widthS" value="1100" required min="1" max="9999">
+                                </div>
+                                <div>
+                                    <label for="heightS" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Height (mm):</label>
+                                    <input type="number" id="heightS" value="144" required min="1" max="9999">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dimension-group">
+                            <h4 style="color: #00b894; margin-bottom: 15px; text-align: center;">Palet Boyutları (M)</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label for="lengthM" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Length (mm):</label>
+                                    <input type="number" id="lengthM" value="1200" required min="1" max="9999">
+                                </div>
+                                <div>
+                                    <label for="widthM" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Width (mm):</label>
+                                    <input type="number" id="widthM" value="1200" required min="1" max="9999">
+                    </div>
+                                <div>
+                                    <label for="heightM" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Height (mm):</label>
+                                    <input type="number" id="heightM" value="160" required min="1" max="9999">
+                    </div>
+                    </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">🚀 VDA 4913 ASN JSON Oluştur</button>
+            </form>
+            
+            <div id="result" class="result-container" style="display: none;">
+                <div id="summary"></div>
+                <h3>
+                    📋 Oluşturulan JSON Verisi
+                    <button class="btn copy-btn" onclick="copyToClipboard()">📋 Kopyala</button>
+                    <button class="btn save-btn" onclick="saveAsJSON()">💾 JSON Kaydet</button>
+                </h3>
+                <div class="json-output" id="jsonOutput"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('packageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generatePackageRecords();
+        });
+
+        // VDA 4913 formatlamak için yardımcı fonksiyonlar
+        function formatFillingAmount(value) {
+            // 715_07: Sağa hizalı, önde sıfırlar, 3 basamak ondalık (nokta olmadan), toplam 13 karakter
+            // Örnek: 120 -> 0000001200000 (120.000 ama nokta olmadan)
+            const integerValue = parseInt(value);
+            const withDecimals = integerValue * 1000; // 3 basamak ondalık için 1000 ile çarp
+            return withDecimals.toString().padStart(13, '0');
+        }
+
+        function formatPackagingDimensions(length, width, height) {
+            // 715_10: Length(4)width(4)height(4) mm formatında, toplam 12 karakter
+            const l = parseInt(length).toString().padStart(4, '0');
+            const w = parseInt(width).toString().padStart(4, '0');
+            const h = parseInt(height).toString().padStart(4, '0');
+            return l + w + h;
+        }
+
+        function formatQuantityOfDelivery(value) {
+            // 714_06: 13 karakter, sağa hizalı, 3 basamak ondalık (nokta olmadan)
+            const integerValue = parseInt(value);
+            const withDecimals = integerValue * 1000;
+            return withDecimals.toString().padStart(13, '0');
+        }
+
+        function formatCounter(value) {
+            // 719 segment sayaçları: 7 karakter, sağa hizalı
+            return value.toString().padStart(7, '0');
+        }
+
+
+        function generatePackageRecords() {
+            // Form verilerini al
+            const paletCount = parseInt(document.getElementById('paletCount').value);
+            const koliCount = parseInt(document.getElementById('koliCount').value);
+            const startNumber = document.getElementById('startNumber').value;
+            
+            // Sabit değerler
+            const staticValues = {
+                recordName: "715",
+                versionNumber: "03",
+                maximumStackNumber: 1,
+                typeOfPackaging: "",
+                typeOfPackaging2: ""
+            };
+
+            // Form verileri - Tüm segmentler
+            const formData = {
+                ...staticValues,
+                // 711 - Delivery Information
+                dataRecipientNumber: document.getElementById('dataRecipientNumber').value,
+                dataSenderNumber: document.getElementById('dataSenderNumber').value,
+                transmissionNumberOld: document.getElementById('transmissionNumberOld').value,
+                transmissionNumberNew: document.getElementById('transmissionNumberNew').value,
+                transmissionDate: document.getElementById('transmissionDate').value,
+                
+                // 712 - Transport Details
+                deliveryRelationNumber: document.getElementById('deliveryRelationNumber').value,
+                carrier: document.getElementById('carrier').value,
+                carrierHandoverDate: document.getElementById('carrierHandoverDate').value,
+                carrierHandoverTime: document.getElementById('carrierHandoverTime').value,
+                deliveryWeightGross: document.getElementById('deliveryWeightGross').value,
+                transportTypeKeyCoded: document.getElementById('transportTypeKeyCoded').value,
+                transportTypeNumber: document.getElementById('transportTypeNumber').value,
+                
+                // 713 - Delivery Note Details
+                deliveryNoteNumber: document.getElementById('deliveryNoteNumber').value,
+                dispatchDate: document.getElementById('dispatchDate').value,
+                unloadingAreaDestinationPoint: document.getElementById('unloadingAreaDestinationPoint').value,
+                typeOfDispatch: document.getElementById('typeOfDispatch').value,
+                orderNumber: document.getElementById('orderNumber').value,
+                factoryCustomer: document.getElementById('factoryCustomer').value,
+                supplierNumber: document.getElementById('supplierNumber').value,
+                
+                // 714 - Position Details
+                articleNumberCustomer: document.getElementById('articleNumberCustomer').value,
+                articleNumberSupplier: document.getElementById('articleNumberSupplier').value,
+                countryOfProduction: document.getElementById('countryOfProduction').value,
+                quantityOfDelivery1: parseInt(document.getElementById('quantityOfDelivery1').value),
+                unitOfMeasure1: document.getElementById('unitOfMeasure1').value,
+                positionOfDeliveryRequest: document.getElementById('positionOfDeliveryRequest').value,
+                loadNumber: document.getElementById('loadNumber').value,
+                purposeKey: document.getElementById('purposeKey').value,
+                preferenceStatus: document.getElementById('preferenceStatus').value,
+                
+                // 715 - Package Information
+                packagingNumberCustomer: document.getElementById('packagingNumberCustomer').value,
+                packagingNumberSupplier: document.getElementById('packagingNumberSupplier').value,
+                deliveryItemNote: document.getElementById('deliveryItemNote').value,
+                productPerPackageM: parseInt(document.getElementById('productPerPackageM').value),
+                productPerPackageS: parseInt(document.getElementById('productPerPackageS').value),
+                // Koli boyutları
+                lengthS: parseInt(document.getElementById('lengthS').value),
+                widthS: parseInt(document.getElementById('widthS').value),
+                heightS: parseInt(document.getElementById('heightS').value),
+                // Palet boyutları
+                lengthM: parseInt(document.getElementById('lengthM').value),
+                widthM: parseInt(document.getElementById('widthM').value),
+                heightM: parseInt(document.getElementById('heightM').value),
+                storageRequestNumber: document.getElementById('storageRequestNumber').value
+            };
+
+            // Başlangıç numarasından sayısal kısmı çıkar
+            const numberPrefix = startNumber.replace(/\d+$/, '');
+            let currentNumber = parseInt(startNumber.match(/\d+$/)[0]);
+
+            // 715 Package Information oluştur
+            const packageInformation = [];
+
+            for (let palet = 1; palet <= paletCount; palet++) {
+                // M kaydı (Palet)
+                const paletRecord = {
+                    "_71501_recordName": formData.recordName,
+                    "_71502_versionNumber": formData.versionNumber,
+                    "_71503_packagingNumberCustomer": formData.packagingNumberCustomer,
+                    "_71504_packagingNumberSupplier": formData.packagingNumberSupplier,
+                    "_71505_quantityOfPackaging": 1,
+                    "_71506_deliveryItemNote": formData.deliveryItemNote,
+                    "_71507_productPerPackage": formatFillingAmount(formData.productPerPackageM),
+                    "_71508_packagingNumberFrom": numberPrefix + currentNumber.toString().padStart(startNumber.match(/\d+$/)[0].length, '0'),
+                    "_71509_packagingNumberUntil": numberPrefix + currentNumber.toString().padStart(startNumber.match(/\d+$/)[0].length, '0'),
+                    "_71510_sizeOfPackaging": formatPackagingDimensions(formData.lengthM, formData.widthM, formData.heightM),
+                    "_71511_maximumStackNumber": formData.maximumStackNumber,
+                    "_71512_storageRequestNumber": formData.storageRequestNumber,
+                    "_71513_labelCode": "M",
+                    "_71514_typeOfPackaging": formData.typeOfPackaging,
+                    "_71515_typeOfPackaging2": formData.typeOfPackaging2,
+                    "_71516_segmentPadding": null
+                };
+                
+                packageInformation.push(paletRecord);
+                currentNumber++;
+
+                // S kaydı (Koli)
+                const startKoli = currentNumber;
+                const endKoli = currentNumber + koliCount - 1;
+                
+                const koliRecord = {
+                    "_71501_recordName": formData.recordName,
+                    "_71502_versionNumber": formData.versionNumber,
+                    "_71503_packagingNumberCustomer": formData.packagingNumberCustomer,
+                    "_71504_packagingNumberSupplier": formData.packagingNumberSupplier,
+                    "_71505_quantityOfPackaging": koliCount,
+                    "_71506_deliveryItemNote": formData.deliveryItemNote,
+                    "_71507_productPerPackage": formatFillingAmount(formData.productPerPackageS),
+                    "_71508_packagingNumberFrom": numberPrefix + startKoli.toString().padStart(startNumber.match(/\d+$/)[0].length, '0'),
+                    "_71509_packagingNumberUntil": numberPrefix + endKoli.toString().padStart(startNumber.match(/\d+$/)[0].length, '0'),
+                    "_71510_sizeOfPackaging": formatPackagingDimensions(formData.lengthS, formData.widthS, formData.heightS),
+                    "_71511_maximumStackNumber": formData.maximumStackNumber,
+                    "_71512_storageRequestNumber": formData.storageRequestNumber,
+                    "_71513_labelCode": "S",
+                    "_71514_typeOfPackaging": formData.typeOfPackaging,
+                    "_71515_typeOfPackaging2": formData.typeOfPackaging2,
+                    "_71516_segmentPadding": null
+                };
+                
+                packageInformation.push(koliRecord);
+                currentNumber += koliCount;
+            }
+
+            // Komple VDA 4913 ASN JSON yapısını oluştur
+            const result = {
+                "_711_preSetOfDeliveryInformation": {
+                    "_71101_recordName": "711",
+                    "_71102_versionNumber": "03",
+                    "_71103_dataRecipientNumber": formData.dataRecipientNumber,
+                    "_71104_dataSenderNumber": formData.dataSenderNumber,
+                    "_71105_transmissionNumberOld": formData.transmissionNumberOld,
+                    "_71106_transmissionNumberNew": formData.transmissionNumberNew,
+                    "_71107_transmissionDate": formData.transmissionDate,
+                    "_71108_subContractedCarrierNumber": null,
+                    "_71109_carrierNumber": null,
+                    "_71110_transmissionOriginatorKey": null,
+                    "_71111_typeOfDelivery": null,
+                    "_71112_segmentPadding": null
+                },
+                "group1": [
+                    {
+                        "group1SequenceId": 1,
+                        "_712_transportDetails": {
+                            "_71201_recordName": "712",
+                            "_71202_versionNumber": "03",
+                            "_71203_deliveryRelationNumber": formData.deliveryRelationNumber,
+                            "_71204_factorySupplier": null,
+                            "_71205_carrier": formData.carrier,
+                            "_71206_carrierHandoverDate": formData.carrierHandoverDate,
+                            "_71207_carrierHandoverTime": formData.carrierHandoverTime,
+                            "_71208_deliveryWeightGross": formData.deliveryWeightGross,
+                            "_71209_deliveryWeightNet": null,
+                            "_71210_frankingKey": null,
+                            "_71211_carrierTransmissionKey": null,
+                            "_71212_sumOfPacketsNumberOfPackages": null,
+                            "_71213_carrierNumber": null,
+                            "_71214_transportTypeKeyCoded": formData.transportTypeKeyCoded,
+                            "_71215_transportTypeNumber": formData.transportTypeNumber,
+                            "_71216_transportTypeNameOrNumberKeyCoded": null,
+                            "_71217_transportTypeNameOrNumber": null,
+                            "_71218_requiredDeliveryDate": null,
+                            "_71219_requiredDeliveryTime": null,
+                            "_71220_loadingBay": null,
+                            "_71221_lorryKey": null,
+                            "_71222_segmentPadding": null
+                        },
+                        "group2": [
+                            {
+                                "group2SequenceId": 1,
+                                "_713_deliveryNoteDetails": {
+                                    "_71301_recordName": "713",
+                                    "_71302_versionNumber": "03",
+                                    "_71303_deliveryNoteNumber": formData.deliveryNoteNumber,
+                                    "_71304_dispatchDate": formData.dispatchDate,
+                                    "_71305_unloadingAreaDestinationPoint": formData.unloadingAreaDestinationPoint,
+                                    "_71306_typeOfDispatch": formData.typeOfDispatch,
+                                    "_71307_identificationOfCustomerDR": null,
+                                    "_71308_orderNumber": formData.orderNumber,
+                                    "_71309_operationKey": null,
+                                    "_71310_segmentPadding1": null,
+                                    "_71311_factoryCustomer": formData.factoryCustomer,
+                                    "_71312_consignment": null,
+                                    "_71313_productRecipientNumber": null,
+                                    "_71314_segmentPadding2": null,
+                                    "_71315_placeOfStorageCustomer": null,
+                                    "_71316_supplierNumber": formData.supplierNumber,
+                                    "_71317_placeOfConsumption": null,
+                                    "_71318_deliveryRequestNumber": null,
+                                    "_71319_identificationOfCustomer": null,
+                                    "_71320_documentNumberCustomer": null,
+                                    "_71321_segmentPadding3": null
+                                },
+                                "group3": [
+                                    {
+                                        "group3SequenceId": 1,
+                                        "_714_deliveryNotePositionDetails": {
+                                            "_71401_recordName": "714",
+                                            "_71402_versionNumber": "03",
+                                            "_71403_articleNumberCustomer": formData.articleNumberCustomer,
+                                            "_71404_articleNumberSupplier": formData.articleNumberSupplier,
+                                            "_71405_countryOfProduction": formData.countryOfProduction,
+                                            "_71406_quantityOfDelivery1": formatQuantityOfDelivery(formData.quantityOfDelivery1),
+                                            "_71407_unitOfMeasure1": formData.unitOfMeasure1,
+                                            "_71408_quantityOfDelivery2": null,
+                                            "_71409_unitOfMeasure2": null,
+                                            "_71410_salesTax": null,
+                                            "_71411_segmentPadding1": null,
+                                            "_71412_positionOfDeliveryRequest": formData.positionOfDeliveryRequest,
+                                            "_71413_deliveryRequestKey": null,
+                                            "_71414_loadNumber": formData.loadNumber,
+                                            "_71415_purposeKey": formData.purposeKey,
+                                            "_71416_hazardousSubstanceKey": null,
+                                            "_71417_preferenceStatus": formData.preferenceStatus,
+                                            "_71418_goodsLiableToDuty": null,
+                                            "_71419_segmentPadding2": null,
+                                            "_71420_stockStatus": null,
+                                            "_71421_changedPerformingKeys": null,
+                                            "_71422_originalDeliveryNoteNumber": null
+                                        },
+                                        "_718_productionNumberData": null,
+                                        "_716_additionalTextData": null,
+                                        "_715_packageInformation": packageInformation,
+                                        "_717_singlePackagingData": null
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "_719_segmentSummary": {
+                    "_71901_recordName": "719",
+                    "_71902_versionNumber": "02",
+                    "_71903_counterSegment711": formatCounter(1),
+                    "_71904_counterSegment712": formatCounter(1),
+                    "_71905_counterSegment713": formatCounter(1),
+                    "_71906_counterSegment714": formatCounter(1),
+                    "_71907_counterSegment715": formatCounter(packageInformation.length),
+                    "_71908_counterSegment716": formatCounter(0),
+                    "_71909_counterSegment718": formatCounter(0),
+                    "_71910_counterSegment719": formatCounter(1),
+                    "_71911_counterSegment717": formatCounter(0),
+                    "_71912_segmentPadding": null
+                }
+            };
+
+            // Sonuçları göster
+            displayResults(result, paletCount, koliCount, packageInformation.length, currentNumber - parseInt(startNumber.match(/\d+$/)[0]));
+        }
+
+        function displayResults(result, paletCount, koliCount, totalRecords, totalLabels) {
+            // Özet bilgileri
+            const summaryHtml = `
+                <div class="summary">
+                    <h4>📊 Oluşturma Özeti</h4>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">${paletCount}</span>
+                            <span class="stat-label">Palet</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${paletCount * koliCount}</span>
+                            <span class="stat-label">Toplam Koli</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${totalRecords}</span>
+                            <span class="stat-label">Kayıt</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${totalLabels}</span>
+                            <span class="stat-label">Etiket</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('summary').innerHTML = summaryHtml;
+            document.getElementById('jsonOutput').textContent = JSON.stringify(result, null, 2);
+            document.getElementById('result').style.display = 'block';
+            
+            // Sonuç bölümüne scroll
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyToClipboard() {
+            const jsonText = document.getElementById('jsonOutput').textContent;
+            navigator.clipboard.writeText(jsonText).then(function() {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Kopyalandı!';
+                copyBtn.style.background = '#00b894';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#00cec9';
+                }, 2000);
+            });
+        }
+
+        function saveAsJSON() {
+            const jsonText = document.getElementById('jsonOutput').textContent;
+            const deliveryNoteNumber = document.getElementById('deliveryNoteNumber').value;
+            const filename = `${deliveryNoteNumber}_vda4913.json`;
+            
+            // JSON dosyasını indirmeye hazırla
+            const blob = new Blob([jsonText], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // İndirme linki oluştur ve tıkla
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            // Buton feedback'i
+            const saveBtn = document.querySelector('.save-btn');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✅ Kaydedildi!';
+            saveBtn.style.background = '#00b894';
+            
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.background = '#6c5ce7';
+            }, 2000);
+        }
+
+        // Sayfa yüklendiğinde örnek veri oluştur
+        window.addEventListener('load', function() {
+            generatePackageRecords();
+        });
+    </script>
+</body>
+</html>
