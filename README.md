@@ -120,13 +120,16 @@ Her VDA segmenti için gerekli bilgileri doldurun:
 <div align="center">
 
 ### Ana Form
-![Ana Form](./screenshots/main-form.png)
+<img width="861" height="832" alt="image" src="https://github.com/user-attachments/assets/ebb474a4-cf7f-40f9-9d13-75bbbbe0ccd0" />
+
 
 ### JSON Çıktısı
-![JSON Çıktısı](./screenshots/json-output.png)
+<img width="807" height="712" alt="image" src="https://github.com/user-attachments/assets/a690c500-b5f0-495d-8a5b-8f1d9e99c3e6" />
+
 
 ### Dosya İndirme
-![Dosya İndirme](./screenshots/file-download.png)
+<img width="749" height="497" alt="image" src="https://github.com/user-attachments/assets/a0902778-16b7-4fdf-8ce7-3eb1c31bf6c5" />
+
 
 </div>
 
@@ -228,7 +231,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 **@ck-cankurt**
 - GitHub: [@ck-cankurt](https://github.com/ck-cankurt)
-- LinkedIn: [Profil](https://linkedin.com/in/ck-cankurt)
+- LinkedIn: [Profil](https://linkedin.com/in/can-kurt)
 
 ---
 
@@ -252,3 +255,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 **🚀 VDA 4913 ASN JSON Generator ile profesyonel teslimat bildirimlerinizi kolayca oluşturun!**
 
 </div>
+
